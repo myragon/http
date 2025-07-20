@@ -1,0 +1,11 @@
+/vendor
+/tmp
+composer.lock
+
+.DS_Store
+/.idea
+/.fleet
+/.vscode
+
+*.tmp
+*.cache
