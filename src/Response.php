@@ -18,9 +18,9 @@ class Response
     protected array $headers;
 
     /**
-     * @var string Body content
+     * @var string|resource Body content. Can be a string or a PHP resource (stream).
      */
-    protected string $body;
+    protected mixed $body;
 
     /**
      * @var array<int,string> Standard HTTP status phrases
@@ -86,11 +86,11 @@ class Response
     /**
      * Constructor.
      *
-     * @param string $body       The response body content.
+     * @param string|resource $body       The response body content.
      * @param int    $statusCode The HTTP status code.
      * @param array<string,string|string[]>  $headers    An array of headers.
      */
-    public function __construct(string $body = '', int $statusCode = 200, array $headers = [])
+    public function __construct(mixed $body = '', int $statusCode = 200, array $headers = [])
     {
         $this->setStatusCode($statusCode);
         $this->setHeaders($headers);
@@ -183,21 +183,35 @@ class Response
     /**
      * Set the response body.
      *
-     * @param string $body The response body content.
+     * @param string|resource $body The response body content or a PHP resource (stream).
      * @return $this
      */
-    public function setBody(string $body): self
+    public function setBody(mixed $body): self
     {
-        $this->body = $body;
+        if (is_string($body)) {
+            $stream = fopen('php://temp', 'r+');
+            if ($stream === false) {
+                throw new RuntimeException("Could not prepare response data for sending");
+            }
+
+            fwrite($stream, $body);
+            rewind($stream);
+            $this->body = $stream;
+        } elseif (is_resource($body)) {
+            $this->body = $body;
+        } else {
+            throw new InvalidArgumentException('Body must be a string or a valid resource.');
+        }
+
         return $this;
     }
 
     /**
      * Get the response body.
      *
-     * @return string
+     * @return string|resource
      */
-    public function getBody(): string
+    public function getBody(): mixed
     {
         return $this->body;
     }
@@ -240,7 +254,7 @@ class Response
         // 1. Send status line
         header(sprintf(
             'HTTP/%s %s %s',
-            '1.1', // Assuming HTTP/1.1
+            '1.1',
             $this->statusCode,
             $this->getReasonPhrase($this->statusCode)
         ), true, $this->statusCode);
@@ -248,12 +262,22 @@ class Response
         // 2. Send headers
         foreach ($this->headers as $name => $values) {
             foreach ($values as $value) {
-                header(sprintf('%s: %s', $name, $value), false); // false for "append header", true to replace (handled by setHeader)
+                header(sprintf('%s: %s', $name, $value), false); // false for "append header"
             }
         }
 
         // 3. Send body
-        echo $this->body;
+        if (is_resource($this->body)) {
+            rewind($this->body);
+            while (!feof($this->body)) {
+                echo fread($this->body, 8192);
+                flush();
+            }
+
+            fclose($this->body);
+        } else {
+            echo (string) $this->body;
+        }
     }
 
     /**
