@@ -1,12 +1,12 @@
 {
     "name": "myragon/http",
-    "type": "library",
-    "license": "MIT",
     "description": "Http package for PHP",
     "keywords": [
         "http"
     ],
-    "homepage": "https://github.com/Seldaek/monolog",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/myragon",
     "scripts": {
         "csfix": "./vendor/bin/php-cs-fixer fix src",
         "phpstan": "./vendor/bin/phpstan analyse -c phpstan.neon"
