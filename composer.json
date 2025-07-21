@@ -8,7 +8,7 @@
     "license": "MIT",
     "homepage": "https://github.com/myragon",
     "scripts": {
-        "csfix": "./vendor/bin/php-cs-fixer fix src",
+        "csfix": "./vendor/bin/php-cs-fixer fix",
         "phpstan": "./vendor/bin/phpstan analyse -c phpstan.neon"
     },
     "autoload": {
@@ -22,8 +22,10 @@
             "email": "bdumitrua@gmail.com"
         }
     ],
+    "minimum-stability": "dev",
     "require": {
-        "php": "^8.4"
+        "php": "^8.4",
+        "myragon/support": "dev-main"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.84",
