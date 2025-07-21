@@ -8,7 +8,6 @@ return (new PhpCsFixer\Config())
     ->setRules([
         '@PSR12' => true,
         '@PHP84Migration' => true,
-        'strict_param' => true,
     ])
     ->setFinder($finder)
-    ->setCacheFile(__DIR__ . './tmp/.php-cs-fixer.cache');
+    ->setCacheFile(__DIR__ . '/tmp/.php-cs-fixer.cache');
